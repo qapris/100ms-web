@@ -4,7 +4,7 @@ import {
   selectHMSMessagesCount,
   selectPeerNameByID,
   selectPermissions,
-  selectSessionMetadata,
+  selectSessionStore,
   useHMSActions,
   useHMSNotifications,
   useHMSStore,
@@ -17,11 +17,13 @@ import { ChatHeader } from "./ChatHeader";
 import { useSetSubscribedChatSelector } from "../AppData/useUISettings";
 import { useSetPinnedMessage } from "../hooks/useSetPinnedMessage";
 import { useUnreadCount } from "./useUnreadCount";
-import { CHAT_SELECTOR } from "../../common/constants";
+import { CHAT_SELECTOR, SESSION_STORE_KEY } from "../../common/constants";
 
 const PinnedMessage = ({ clearPinnedMessage }) => {
   const permissions = useHMSStore(selectPermissions);
-  const pinnedMessage = useHMSStore(selectSessionMetadata);
+  const pinnedMessage = useHMSStore(
+    selectSessionStore(SESSION_STORE_KEY.PINNED_MESSAGE)
+  );
 
   return pinnedMessage ? (
     <Flex
@@ -107,13 +109,6 @@ export const Chat = () => {
     [hmsActions, messagesCount]
   );
 
-  useEffect(() => {
-    if (listRef.current && listRef.current.scrollToItem) {
-      scrollToBottom(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listRef.current]);
-
   return (
     <Flex direction="column" css={{ size: "100%" }}>
       <ChatHeader
@@ -139,8 +134,8 @@ export const Chat = () => {
       <ChatBody
         role={chatOptions.role}
         peerId={chatOptions.peerId}
-        setPinnedMessage={setPinnedMessage}
         ref={listRef}
+        scrollToBottom={scrollToBottom}
       />
       <ChatFooter
         role={chatOptions.role}
